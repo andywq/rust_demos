@@ -22,11 +22,17 @@ fn main() -> std::io::Result<()> {
 
 
 fn handler(mut stream: TcpStream) -> std::io::Result<()> {
-    let mut buf = [0u8; 1024];
-    let n = stream.read(&mut buf)?;
-    stream.write_all(b"echo: ")?;
-    stream.write_all(&buf[..n])?;
-    stream.write_all(b"\n")?;
+    loop {
+        let mut buf = [0u8; 1024];
+        let n = stream.read(&mut buf)?;
+        if buf.starts_with(b"EOF\n") {
+            break;
+        }
+
+        stream.write_all(b"echo: ")?;
+        stream.write_all(&buf[..n])?;
+        stream.write_all(b"\n")?;
+    }
 
     Ok(())
 }
